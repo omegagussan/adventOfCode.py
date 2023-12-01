@@ -1,12 +1,11 @@
 def part1():
 	with open("input.txt") as input_file:
-		sum = 0
+		total = 0
 		rows = input_file.read().strip().split('\n')
 		for row in rows:
 			numbers = [c for c in row if c.isnumeric()]
-			stiched = numbers[0] + numbers[-1]
-			sum += int(stiched)
-	return sum
+			total += int(numbers[0] + numbers[-1])
+	return total
 
 
 translations = {
@@ -21,10 +20,13 @@ translations = {
 	"nine": 9
 }
 
+backwards_translation = {k[::-1]: v for k, v in translations.items()}
+
 
 def find_number(lst: list[str], backwards=False):
 	remainder = ''
 	state = list(reversed(lst)) if backwards else lst.copy()
+
 	while True:
 		elem = state.pop(0)
 		if elem.isnumeric():
@@ -32,23 +34,22 @@ def find_number(lst: list[str], backwards=False):
 		else:
 			remainder += elem
 
-		remainder_backwards = remainder[::-1]
-		for k, v in translations.items():
-			if remainder_backwards.startswith(
-				k) if backwards else remainder.endswith(k):
+		translation = backwards_translation if backwards else translations
+		for k, v in translation.items():
+			if remainder.endswith(k):
 				return str(v)
 
 
 def part2():
 	with open("input.txt") as input_file:
-		sum = 0
+		total = 0
 		rows = input_file.read().strip().split('\n')
 		for row in rows:
-			listan = [c for c in row]
-			first = find_number(listan)
-			last = find_number(listan, True)
-			sum += int(first + last)
-	return sum
+			letter_list = [c for c in row]
+			first = find_number(letter_list)
+			last = find_number(letter_list, True)
+			total += int(first + last)
+	return total
 
 
 if __name__ == "__main__":
