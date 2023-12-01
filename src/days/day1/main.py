@@ -22,32 +22,20 @@ translations = {
 }
 
 
-def find_first_number(lst: list[str]):
+def find_number(lst: list[str], backwards=False):
 	remainder = ''
-	for i in range(len(lst)):
-		elem = lst.pop(0)
+	state = list(reversed(lst)) if backwards else lst.copy()
+	while True:
+		elem = state.pop(0)
 		if elem.isnumeric():
 			return elem
 		else:
 			remainder += elem
 
+		remainder_backwards = remainder[::-1]
 		for k, v in translations.items():
-			if remainder.endswith(k):
-				return str(v)
-
-
-def find_last_number(lst: list[str]):
-	remainder = ''
-	for i in range(len(lst)):
-		elem = lst.pop()
-		if elem.isnumeric():
-			return elem
-		else:
-			remainder += elem
-
-		backwards_reminder = remainder[::-1]
-		for k, v in translations.items():
-			if backwards_reminder.startswith(k):
+			if remainder_backwards.startswith(
+				k) if backwards else remainder.endswith(k):
 				return str(v)
 
 
@@ -56,8 +44,9 @@ def part2():
 		sum = 0
 		rows = input_file.read().strip().split('\n')
 		for row in rows:
-			first = find_first_number([c for c in row])
-			last = find_last_number([c for c in row])
+			listan = [c for c in row]
+			first = find_number(listan)
+			last = find_number(listan, True)
 			sum += int(first + last)
 	return sum
 
