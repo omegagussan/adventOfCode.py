@@ -1,13 +1,3 @@
-def part1():
-	with open("input.txt") as input_file:
-		total = 0
-		rows = input_file.read().strip().split('\n')
-		for row in rows:
-			numbers = [c for c in row if c.isnumeric()]
-			total += int(numbers[0] + numbers[-1])
-	return total
-
-
 translations = {
 	"one": 1,
 	"two": 2,
@@ -21,6 +11,16 @@ translations = {
 }
 
 backwards_translation = {k[::-1]: v for k, v in translations.items()}
+
+
+def part1():
+	with open("input.txt") as input_file:
+		total = 0
+		rows = input_file.read().strip().split('\n')
+		for row in rows:
+			numbers = [c for c in row if c.isnumeric()]
+			total += int(numbers[0] + numbers[-1])
+	return total
 
 
 def find_number(lst: list[str], backwards=False):
