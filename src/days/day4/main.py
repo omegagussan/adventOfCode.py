@@ -1,4 +1,5 @@
 import math
+from functools import reduce
 
 
 def part1():
@@ -13,22 +14,28 @@ def part1():
 	return total
 
 
+def parse_winners_candidates_tuple(row: str) -> tuple[list[str], ...]:
+	return tuple(
+		i.split() for i in row.split(": ")[1].strip().split(" | "))
+
+
+def row_key(row):
+	return int(row.split(": ")[0][5::])
+
+
 def part2():
-	with open("sample.txt") as input_file:
-		total = 0
+	with open("input.txt") as input_file:
 		rows = input_file.read().strip().split('\n')
-		original = {int(row.split(": ")[0][5::]): tuple(i.split() for i in row.split(": ")[1].strip().split(" | ")) for row in rows}
-		# counts = {k: 1 for k in original.keys()}
-		stack = list(original.items())
-		while stack:
-			nr, row = stack.pop(0)
-			total += 1
-			winners, candidates = row
+		original = {
+			row_key(row): parse_winners_candidates_tuple(row)
+			for row in rows}
+		counts = {k: 1 for k in original.keys()}
+		for curr in original.keys():
+			winners, candidates = original.get(curr)
 			overlap = set(winners).intersection(candidates)
-			indexes = [int(nr) + index + 1 for index in range(len(overlap))]
-			for index in indexes:
-				stack.append((index, original.get(index)))
-	return total
+			for offsetIndex in range(len(overlap)):
+				counts[curr + offsetIndex + 1] += counts[curr]
+	return reduce((lambda x, y: x + y), counts.values())
 
 
 if __name__ == "__main__":
