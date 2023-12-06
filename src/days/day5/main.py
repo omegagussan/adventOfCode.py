@@ -1,102 +1,85 @@
-from dataclasses import dataclass
+import re
+
+from itertools import groupby
 
 
-@dataclass(unsafe_hash=True)
-class SeedSpan:
-	frm: int
-	to: int  # inclusive
+def parse_ints(s: str) -> list[int]:
+	return list(map(int, re.findall("\d+", s)))
 
 
-@dataclass
-class Rule:
-	src: int
-	dst: int
-	span: int
-
-	def apply(self, val: int):
-		if self.src <= val < self.src + self.span:
-			return self.dst + val - self.src
-		return val
-
-	def apply_span(self, val: SeedSpan):
-		rule_upper = (self.src + self.span)
-		if val.to < self.src or val.frm > rule_upper:
-			return [val]
-		else:
-			parts = []
-			if val.frm < self.src:
-				parts.append(SeedSpan(val.frm, self.src-1))
-			if val.to > rule_upper:
-				parts.append(SeedSpan(rule_upper + 1, val.to))
-			parts.append(SeedSpan(max(self.src, val.frm) - self.src + self.dst,
-								  min(rule_upper,
-									  val.to) - self.src + self.dst))
-			return parts
+def split_list(lst):
+	return (list(group) for _, group in groupby(lst, lambda x: x != ''))
 
 
-@dataclass
-class RuleSet:
-	name: str
-	rules: list[Rule]
-
-	def apply(self, val: int):
-		tmp = val
-		for rule in self.rules:
-			old = tmp
-			tmp = rule.apply(tmp)
-			if old is not tmp:
-				break
-		return tmp
-
-	def apply_seed_spans(self, vals: list[SeedSpan]):
-		tmp = []
-		for rule in self.rules:
-			tmp.extend([i for t in vals for i in rule.apply_span(t)])
-		tmp = list(set(tmp))
-		print(self.name)
-		print(rule)
-		print(tmp)
-		print(" ")
-		return tmp
-
-	def apply_all(self, vals: list[int]):
-		return [self.apply(t) for t in vals]
+almanac = [lines.strip() for lines in open("input.txt").readlines()]
+seeds = parse_ints(almanac[0])
+maps = [[parse_ints(x) for x in m[1:]] for m in split_list(almanac[2:])]
 
 
 def part1():
-	with open("input.txt") as input_file:
-		blocks = input_file.read().strip().split('\n\n')
-		seed_str, *rest = blocks
-		seeds = seed_str[7::].split(' ')
-		rule_sets = [parse_rule_set(block) for block in rest]
-		res = list(map(lambda x: int(x), seeds))
-		for rules in rule_sets:
-			res = rules.apply_all(res)
-		return min(res)
+	res = []
+	for seed in seeds:
+		for m in maps:
+			for to, start, count in m:
+				if start <= seed <= start + count:
+					seed += to - start
+					break
+		res.append(seed)
+	return min(res)
+
+
+def find_overlap(r1, r2):
+	r1_start, r1_end = r1
+	r2_start, r2_end = r2
+	o_start = max(r1_start, r2_start)
+	o_end = min(r1_end, r2_end)
+	return (o_start, o_end) if o_start <= o_end else None
+
+
+def shift(r, delta):
+	r_start, r_end = r
+	return r_start + delta, r_end + delta
+
+
+def split(r, overlap):
+	result = set()
+
+	o_start, o_end = overlap
+	r_start, r_end = r
+
+	if r_start < o_start:
+		result.add((r_start, o_start - 1))
+
+	if r_end > o_end:
+		result.add((o_end + 1, r_end))
+
+	return result
+
+
+def to_range(start_count):
+	start, count = start_count
+	return start, start + count - 1
 
 
 def part2():
-	with open("sample.txt") as input_file:
-		blocks = input_file.read().strip().split('\n\n')
-		seed_str, *rest = blocks
-		seed_blocks = list(map(lambda x: int(x), seed_str[7::].split(' ')))
-		seeds = [
-			SeedSpan(seed_blocks[i], seed_blocks[i] + seed_blocks[i + 1] - 1)
-			for i in
-			range(0, len(seed_blocks), 2)]
-		rule_sets = [parse_rule_set(block) for block in rest]
-		for rules in rule_sets:
-			seeds = rules.apply_seed_spans(seeds)
-		return min(list(map(lambda x: x.frm, seeds)))
+	ranges = set(map(to_range, zip(seeds[0::2], seeds[1::2])))
 
+	for m in maps:
+		shifted_ranges = set()
 
-def parse_rule_set(map_str):
-	rules = []
-	name, *rows = map_str.split('\n')
-	for row in rows:
-		dst, src, span = list(map(lambda x: int(x), row.split(' ')))
-		rules.append(Rule(src, dst, span))
-	return RuleSet(name, rules)
+		for to, start, count in m:
+			for r in ranges.copy():
+				start_count = (start, count)
+				start1, count1 = start_count
+				result = start1, start1 + count1 - 1
+				if overlap := find_overlap(r, result):
+					ranges.remove(r)
+					ranges |= split(r, overlap)
+					shifted_ranges.add(shift(overlap, to - start))
+
+		ranges |= shifted_ranges
+
+	return min(min(ranges))
 
 
 if __name__ == "__main__":
