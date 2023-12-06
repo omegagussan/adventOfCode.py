@@ -69,16 +69,12 @@ def part2():
 
 		for to, start, count in m:
 			for r in ranges.copy():
-				start_count = (start, count)
-				start1, count1 = start_count
-				result = start1, start1 + count1 - 1
+				result = (start, start + count - 1)
 				if overlap := find_overlap(r, result):
 					ranges.remove(r)
 					ranges |= split(r, overlap)
 					shifted_ranges.add(shift(overlap, to - start))
-
 		ranges |= shifted_ranges
-
 	return min(min(ranges))
 
 
