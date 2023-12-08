@@ -35,9 +35,7 @@ def part2():
 		print(mapping)
 
 	curr = [key for key in mapping.keys() if key.endswith('A')]
-	print(len(curr))
 	periods = [solve(instructions, mapping, c, "Z") for c in curr]
-	print(periods)
 	return lcm(periods)
 
 
