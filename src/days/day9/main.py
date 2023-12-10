@@ -8,17 +8,21 @@ def part1():
         res = []
         for row in rows:
             values = [int(v) for v in row.split(' ')]
-            diffs = [values]
-            while not last_diff_is_all_zeroes(diffs):
-                last_diffs = diffs[-1]
-                diffs.append([b - a for a, b in pairwise(last_diffs)])
+            diffs = generate_all_order_diffs(values)
             for idx in reversed(range(0, len(diffs) - 1)):
-                print(idx)
                 new_val = diffs[idx][-1] + diffs[idx + 1][-1]
                 diffs[idx].append(new_val)
             res.append(diffs[0][-1])
-    print(res)
     return reduce((lambda x, y: x + y), res)
+
+
+def generate_all_order_diffs(values: list[int]) -> list[list[int]]:
+    diffs = [values]
+    while not last_diff_is_all_zeroes(diffs):
+        last_diffs = diffs[-1]
+        diffs.append([b - a for a, b in pairwise(last_diffs)])
+    return diffs
+
 
 def part2():
     with open("input.txt") as input_file:
@@ -26,16 +30,11 @@ def part2():
         res = []
         for row in rows:
             values = [int(v) for v in row.split(' ')]
-            diffs = [values]
-            while not last_diff_is_all_zeroes(diffs):
-                last_diffs = diffs[-1]
-                diffs.append([b - a for a, b in pairwise(last_diffs)])
+            diffs = generate_all_order_diffs(values)
             for idx in reversed(range(0, len(diffs) - 1)):
-                print(idx)
                 new_val = diffs[idx][0] - diffs[idx + 1][0]
                 diffs[idx].insert(0, new_val)
             res.append(diffs[0][0])
-    print(res)
     return reduce((lambda x, y: x + y), res)
 
 
@@ -46,5 +45,5 @@ def last_diff_is_all_zeroes(diffs):
 
 
 if __name__ == "__main__":
-    #print(part1())
+    print(part1())
     print(part2())
