@@ -4,7 +4,6 @@ from functools import reduce
 spacer = "^"
 replacer = 1000000
 
-
 def transpose(mat):
 	return [list(i) for i in zip(*mat)]
 
