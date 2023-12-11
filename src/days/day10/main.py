@@ -54,24 +54,24 @@ def find_start(mat):
 
 
 def part1():
-	board, start = get_board_start()
+	board, start = get_board_and_start()
 	visited = get_loop(board, start)
 	return len(visited) // 2
 
 def part2():
-	board, start = get_board_start()
+	board, start = get_board_and_start()
 	loop = get_loop(board, start)
 	
 	board_poses = [(y, x) for y, line in enumerate(board) for x, c in enumerate(line)]
 	
 	non_pipe_candidates = list(filter(lambda x: str(x) not in loop, board_poses))
-	inside_loop = [1 if count_crosses(board, c, loop) % 2 == 1 else 0 for c in non_pipe_candidates]
+	inside_loop = [1 if count_crosses(board, candidate, loop) % 2 == 1 else 0 for candidate in non_pipe_candidates]
 	return reduce(lambda x, y: x+y, inside_loop)
 
 
-def count_crosses(board, c, loop):
+def count_crosses(board, pose, loop):
 	crosses = 0
-	ray_pose = tuple(c)
+	ray_pose = tuple(pose)
 	while filter_in_board([ray_pose], board):
 		ray_value = get_value(ray_pose, board)
 		if str(ray_pose) in loop and ray_value != "L" and ray_value != "7":
@@ -101,7 +101,7 @@ def get_loop(board, start):
 	return visited
 
 
-def get_board_start():
+def get_board_and_start():
 	with open("input.txt") as input_file:
 		rows = input_file.read().strip().split('\n')
 		board = [list(row) for row in rows]
@@ -110,5 +110,5 @@ def get_board_start():
 
 
 if __name__ == "__main__":
-	#print(part1())
+	print(part1())
 	print(part2())
