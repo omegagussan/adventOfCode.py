@@ -1,4 +1,5 @@
 import itertools
+import functools
 
 def fill_pounds(s, chars):
 	for p in map(iter, itertools.product(chars, repeat=s.count('?'))):
@@ -31,24 +32,40 @@ def part1():
 
 	return total
 
+
+cache = {}
 def part2():
-	with open("sample.txt") as input_file:
+	with open("input.txt") as input_file:
 		rows = input_file.read().strip().split('\n')
 		total = 0
 		for grid, values in [row.split() for row in rows]:
 			arrangement = 5 * [int(y) for y in values.split(",")]
 			unfolded = '?'.join(5 * [grid])
-			g = fill_pounds(unfolded, "#.")
-			valid = list(filter(lambda x: test_valid(x, arrangement), g))
-			#print(g)
-			#print(valid)
-			print(arrangement)
-			print(len(valid))
-			#print(" ")
-			total += len(valid)
-	
+			total += count_matches(unfolded, len(unfolded), tuple(arrangement))
 	return total
 
+@functools.cache
+def count_matches(pattern, size, arrangement):
+	curr, rest = (arrangement[0], arrangement[1:])
+	look_forward = sum(rest) + len(rest)
+	
+	count = 0
+	for start in range(size-look_forward-curr+1):
+		if not any(c == "." for c in pattern[start:start+curr]):
+			if len(rest) == 0:
+				if not any(c == '#' for c in pattern[start+curr:]):
+					count += 1
+			elif not pattern[start+curr] == '#':
+				count += count_matches(pattern[start+curr+1:],
+				                       size-curr-start-1,
+				                       rest)
+		
+		if pattern[start] == '#':
+			break
+	
+	return count
+
+
 if __name__ == "__main__":
-	#print(part1())
+	print(part1())
 	print(part2())
