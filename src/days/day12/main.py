@@ -6,26 +6,12 @@ def fill_pounds(s, chars):
 
 
 def test_valid(string: str, arrangement: list[int]):
-	arrangement_idx = 0
-	
-	inside = 0
-	for curr in list(string + "."):
-		if arrangement_idx > len(arrangement):
-			return False
-		
-		if curr == "#":
-			inside += 1
-		else:
-			if 0 < inside:
-				if arrangement_idx >= len(arrangement):
-					return False
-				if inside != arrangement[arrangement_idx]:
-					return False
-				arrangement_idx += 1
-			inside = 0
-			
-	if arrangement_idx < len(arrangement):
+	groups = list(filter(lambda x: x, string.split(".")))
+	if len(groups) != len(arrangement):
 		return False
+	for idx, g in enumerate(groups):
+		if arrangement[idx] != len(g):
+			return False
 	return True
 
 def part1():
@@ -45,5 +31,24 @@ def part1():
 
 	return total
 
+def part2():
+	with open("sample.txt") as input_file:
+		rows = input_file.read().strip().split('\n')
+		total = 0
+		for grid, values in [row.split() for row in rows]:
+			arrangement = 5 * [int(y) for y in values.split(",")]
+			unfolded = '?'.join(5 * [grid])
+			g = fill_pounds(unfolded, "#.")
+			valid = list(filter(lambda x: test_valid(x, arrangement), g))
+			#print(g)
+			#print(valid)
+			print(arrangement)
+			print(len(valid))
+			#print(" ")
+			total += len(valid)
+	
+	return total
+
 if __name__ == "__main__":
-	print(part1())
+	#print(part1())
+	print(part2())
