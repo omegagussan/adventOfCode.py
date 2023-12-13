@@ -1,6 +1,8 @@
+def flatmap(reverse):
+	return [a for b in reverse for a in b]
+
 def transpose(mat):
 	return [list(i) for i in zip(*mat)]
-
 
 def part1():
 	total = 0
@@ -17,12 +19,14 @@ def part1():
 
 def part2():
 	total = 0
-	with open("sample.txt") as input_file:
+	with open("input.txt") as input_file:
 		blocks = input_file.read().strip().split('\n\n')
-		print(len(blocks))
 		for rows_str in blocks:
 			mat = [list(row) for row in rows_str.split("\n")]
-			total += find_fold_tolerate_error(mat, True)
+			horizontal = find_fold_tolerate_error(mat, True)
+			if horizontal > 0:
+				total += horizontal
+				continue
 			mat_t = transpose(mat)
 			total += find_fold_tolerate_error(mat_t, False)
 
@@ -49,11 +53,9 @@ def find_fold_tolerate_error(mat, horizontal=True):
 		assert len(top) + len(bottom) == len(mat)
 		overlap = min(i, len(mat) - i)
 		reverse = bottom[:overlap][::-1]
-		errors = [0 if z[0] == z[1] else 1 for z in zip(*top[-overlap:], *reverse)]
-		print(list(zip(*top[-overlap:], *reverse)))
-		print(sum(errors))
-		print(" ")
-		if sum(errors) < 2:
+		flatmap_reversed = flatmap(reverse)
+		errors = [0 if flatmap(top[-overlap:])[i] == flatmap_reversed[i] else 1 for i in range(len(flatmap_reversed))]
+		if sum(errors) == 1:
 			return 100 * i if horizontal else i
 	return 0
 
@@ -63,3 +65,6 @@ if __name__ == "__main__":
 	print(part2())
 # 25233 LOW
 # 28167 LOW
+
+#36298 HIGH
+#36541 without break

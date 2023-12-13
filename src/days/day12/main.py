@@ -23,11 +23,6 @@ def part1():
 			arrangement = [int(y) for y in values.split(",")]
 			g = fill_pounds(grid, "#.")
 			valid = list(filter(lambda x: test_valid(x, arrangement), g))
-			#print(g)
-			#print(valid)
-			#print(arrangement)
-			#print(len(valid))
-			#print(" ")
 			total += len(valid)
 
 	return total
@@ -47,19 +42,21 @@ def part2():
 @functools.cache
 def count_matches(pattern, size, arrangement):
 	curr, rest = (arrangement[0], arrangement[1:])
-	look_forward = sum(rest) + len(rest)
+	remaining_hashtags = sum(rest) + len(rest)
 	
 	count = 0
-	for start in range(size-look_forward-curr+1):
+	look_forwards = size - remaining_hashtags - curr + 1
+	for start in range(look_forwards):
 		if not any(c == "." for c in pattern[start:start+curr]):
 			if len(rest) == 0:
 				if not any(c == '#' for c in pattern[start+curr:]):
 					count += 1
 			elif not pattern[start+curr] == '#':
-				count += count_matches(pattern[start+curr+1:],
-				                       size-curr-start-1,
-				                       rest)
-		
+				count += count_matches(
+					pattern[start+curr+1:],
+				    size-curr-start-1,
+				    rest
+				)
 		if pattern[start] == '#':
 			break
 	
