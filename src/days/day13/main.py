@@ -22,15 +22,9 @@ def find_fold(mat, horizontal=True):
 		bottom = mat[i:]
 		assert len(top) + len(bottom) == len(mat)
 		overlap = min(i, len(mat) - i)
-		reverse = list(reversed(bottom))[:overlap]
+		reverse = bottom[:overlap][::-1]
 		assert len(top[-overlap:]) == len(reverse)
 		if top[-overlap:] == reverse:
-			print(horizontal)
-			print(top[-overlap:])
-			print(reverse)
-			print(overlap)
-			print(i)
-			print(" ")
 			return 100 * i if horizontal else i
 	return 0
 
