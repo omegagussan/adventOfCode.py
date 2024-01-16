@@ -1,5 +1,5 @@
-from collections import defaultdict
 import re
+from collections import defaultdict
 
 
 def part1():
@@ -57,9 +57,8 @@ def eight_bit_hash(string: str) -> int:
 		val = val % 256
 	return val
 
+
 if __name__ == "__main__":
-	#print(eight_bit_hash("HASH"))
+	# print(eight_bit_hash("HASH"))
 	print(part1())
 	print(part2())
-	#330336 HIGH
-	#329680 HIGH
