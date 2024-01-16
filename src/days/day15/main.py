@@ -18,17 +18,9 @@ def part2():
 			if "-" in p:
 				for box in labelmap[label]:
 					label_pattern = p.replace("-", "=")
-					tmp = [v for v in hashmap[box] if not v.startswith(label_pattern)]
-					if not tmp == hashmap[box]:
-						print("dropped " + p)
-						print(tmp)
-						print(hashmap[box])
-						print(" ")
-					hashmap[box] = tmp
+					hashmap[box] = [v for v in hashmap[box] if not v.startswith(label_pattern)]
 				labelmap[label] = []
 			else:
-				if label == "tqjk":
-					print("what")
 				hash_label = eight_bit_hash(label)
 				if not hashmap[hash_label]:
 					hashmap[hash_label].append(p)
@@ -37,13 +29,10 @@ def part2():
 				else:
 					tmp = [p if e.startswith(label + "=") else e for e in hashmap[hash_label]]
 					if hashmap[hash_label] == tmp:
-						hashmap[hash_label].append(p)
-						hashmap[hash_label] = list(dict.fromkeys(hashmap[hash_label]))
-						labelmap[label].append(hash_label)
-						labelmap[label] = list(set(labelmap[label]))
+						hashmap[hash_label] = list(dict.fromkeys(hashmap[hash_label] + [p]))
+						labelmap[label] = list(set(labelmap[label] + [hash_label]))
 					else:
 						hashmap[hash_label] = tmp
-		print(hashmap)
 		return get_focusing_power(hashmap)
 
 
